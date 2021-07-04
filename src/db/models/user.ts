@@ -1,12 +1,21 @@
 "use strict";
 import { Model } from "sequelize";
 
-interface UserAttributes {
+export interface UserAttributes {
   name: string;
   username: string;
   password: string;
   role: string;
 }
+
+declare global {
+  namespace Express {
+    interface User extends UserAttributes {
+      id: number;
+    }
+  }
+}
+
 module.exports = (sequelize: any, DataTypes: any) => {
   class User extends Model<UserAttributes> implements UserAttributes {
     name!: string;
