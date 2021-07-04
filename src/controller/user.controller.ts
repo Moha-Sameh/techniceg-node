@@ -54,7 +54,8 @@ export const userLogin = (req: Request, res: Response, next: NextFunction) => {
       id: user.id,
       username: user.username,
       role: user.role,
-      exp: Date.now() + parseInt(process.env.JWT_EXPIRATION_MS as string, 16),
+      // tslint:disable-next-line: radix
+      exp: Date.now() + parseInt(process.env.JWT_EXPIRATION_MS as string),
     };
     const token = jwt.sign(
       JSON.stringify(payload),

@@ -1,16 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import db from "../db/models";
 
-// Find Task by ID
-export const findTask = async (id: number, next: NextFunction) => {
-  try {
-    const task = await db.Task.findByPk(id);
-    return task;
-  } catch (error) {
-    next(error);
-  }
-};
-
 // Create new task
 export const createTask = async (
   req: Request,
@@ -18,15 +8,13 @@ export const createTask = async (
   next: NextFunction
 ) => {
   try {
-    const { title, description, status, price } = req?.body;
+    const { title, description, price } = req?.body;
     if (
       !title ||
       !description ||
-      !status ||
       !price ||
       typeof title !== "string" ||
       typeof description !== "string" ||
-      typeof status !== "string" ||
       typeof price !== "number"
     ) {
       res.send("Improper Values");
@@ -37,7 +25,7 @@ export const createTask = async (
       return;
     }
     req.body.creatorId = req.user.id;
-    req.body.status = "Pending";
+    req.body.status = "Todo";
     const newTask = await db.Task.create(req.body);
     res.json(newTask);
   } catch (error) {
@@ -54,6 +42,21 @@ export const getTasks = async (
   try {
     const tasks = await db.Task.findAll();
     res.json(tasks);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update Task by ID
+export const updateTask = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const task = await db.Task.findByPk(req.body.id);
+    await task.update({ ...req.body });
+    res.status(204).end();
   } catch (error) {
     next(error);
   }
