@@ -40,7 +40,12 @@ export const getTasks = async (
   next: NextFunction
 ) => {
   try {
-    const tasks = await db.Task.findAll();
+    const tasks = await db.Task.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "doerId", "creatorId"],
+      },
+      order: [["createdAt", "DESC"]],
+    });
     res.json(tasks);
   } catch (error) {
     next(error);
@@ -56,7 +61,7 @@ export const updateTask = async (
   try {
     const task = await db.Task.findByPk(req.body.id);
     await task.update({ ...req.body });
-    res.status(204).end();
+    res.json(task);
   } catch (error) {
     next(error);
   }

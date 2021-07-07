@@ -1,5 +1,6 @@
 import passportLocal from "passport-local";
 import passportJwt from "passport-jwt";
+import refresh from "passport-oauth2-refresh";
 import bcrypt from "bcryptjs";
 import db from "../db/models";
 
