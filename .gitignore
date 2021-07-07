@@ -118,8 +118,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-#Env file
-.env
-
 #Modules
 node_modules
