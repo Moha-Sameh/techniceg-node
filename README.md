@@ -18,3 +18,22 @@ Thus, all the code will be written in javascript (typescript).
 <<<<<<<<<<<<>>>>>>>>>>>>
 
 6- Refresh token: I have modified the refreshToken code a little bit and now it is working as required, changed the token to be fetched from the request headers, tested it with postman and all is working find.
+
+<<<<<<<<>>>>>>>>
+
+## my .env data
+
+PORT=8000
+DB_USER=postgres
+DB_NAME=technicdb
+DB_PASS=12345moha
+
+#JWT Key
+JWT_SECRET=my-32-character-ultra-secure-and-ultra-long-secret
+JWT_EXPIRATION_MS=300000
+
+#RefreshToken Key
+JWT_REFRESH_SECRET=my-32-refresh-ultra-secure-and-ultra-long-secret
+JWT_REFRESH_EXPIRATION_MS=86400000
+
+##
