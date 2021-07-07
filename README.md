@@ -17,4 +17,4 @@ Thus, all the code will be written in javascript (typescript).
 
 <<<<<<<<<<<<>>>>>>>>>>>>
 
-I have proceeded to do refresh token but there is a bug, the request is made but it return undefined. that I will probably not be able to find before deadline
+6- Refresh token: I have modified the refreshToken code a little bit and now it is working as required, changed the token to be fetched from the request headers, tested it with postman and all is working find.

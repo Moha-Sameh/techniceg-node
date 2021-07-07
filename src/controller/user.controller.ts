@@ -54,77 +54,83 @@ export const userLogin = (req: Request, res: Response, next: NextFunction) => {
       id: user.id,
       username: user.username,
       role: user.role,
-      // tslint:disable-next-line: radix
-      exp: Date.now() + parseInt(process.env.JWT_EXPIRATION_MS as string),
+      exp: Date.now() + parseInt(process.env.JWT_EXPIRATION_MS as string, 10),
     };
     const refreshPayload = {
       id: user.id,
       username: user.username,
       role: user.role,
-
       exp:
-        // tslint:disable-next-line: radix
-        Date.now() + parseInt(process.env.JWT_REFRESH_EXPIRATION_MS as string),
+        Date.now() +
+        parseInt(process.env.JWT_REFRESH_EXPIRATION_MS as string, 10),
     };
-    const token = jwt.sign(
-      JSON.stringify(payload),
-      process.env.JWT_SECRET as string
-    );
-    // tslint:disable-next-line: no-shadowed-variable
-    const refreshToken = jwt.sign(
-      JSON.stringify(refreshPayload),
-      process.env.JWT_REFRESH_SECRET as string
-    );
-    res.json({ token, refreshToken });
+    res.json({
+      token: jwt.sign(
+        JSON.stringify(payload),
+        process.env.JWT_SECRET as string
+      ),
+      refreshToken: jwt.sign(
+        JSON.stringify(refreshPayload),
+        process.env.JWT_REFRESH_SECRET as string
+      ),
+    });
   } catch (error) {
     next(error);
   }
 };
 
+interface IDecodedRefreshToken {
+  id: number;
+  exp: number;
+}
+
+interface IDecodedToken extends IDecodedRefreshToken {
+  username: string;
+  role: string;
+}
+
 export const refreshToken = (req: Request, res: Response): void => {
-  const myToken = decode(req.body.token);
-  const myRefreshToken = decode(req.body.refreshToken);
+  let myToken;
+  let myRefreshToken;
   try {
-    if (myRefreshToken == null || myToken == null) {
-      res.send("Invalid Token not found");
-      return;
-    }
-    // @ts-ignore
-    if (myToken.id === myRefreshToken.id) {
-      const newPayLoad = {
-        // @ts-ignore
-        id: myToken.id,
-        // @ts-ignore
-        username: myToken.username,
-        // @ts-ignore
-        role: myToken.role,
-        // tslint:disable-next-line: radix
-        exp: Date.now() + parseInt(process.env.JWT_EXPIRATION_MS as string),
-      };
-      // @ts-ignore
-      const newRefreshPayLoad = {
-        // @ts-ignore
-        id: myRefreshToken.id,
-        // @ts-ignore
-        username: myRefreshToken.username,
-        // @ts-ignore
-        role: myRefreshToken.role,
-        exp:
-          Date.now() +
-          // tslint:disable-next-line: radix
-          parseInt(process.env.JWT_REFRESH_EXPIRATION_MS as string),
-      };
-      const newtoken = jwt.sign(
-        JSON.stringify(newPayLoad),
-        process.env.JWT_SECRET as string
-      );
-      const newrefreshToken = jwt.sign(
-        JSON.stringify(newRefreshPayLoad),
-        process.env.JWT_REFRESH_SECRET as string
-      );
-      res.json({ newtoken, newrefreshToken });
-    }
+    myToken = decode(
+      (req.headers.authorization ?? "").slice("Bearer ".length)
+    ) as IDecodedToken | null;
+    myRefreshToken = decode(
+      req.body.refreshToken
+    ) as IDecodedRefreshToken | null;
   } catch (error) {
-    throw new Error("Invalid");
+    res.status(400).send("Invalid Token");
+    return;
   }
+  if (
+    myRefreshToken == null ||
+    myToken == null ||
+    myToken.id !== myRefreshToken.id
+  ) {
+    res.status(400).send("Invalid Token");
+    return;
+  }
+  const newPayLoad = {
+    id: myToken.id,
+    username: myToken.username,
+    role: myToken.role,
+    exp: Date.now() + parseInt(process.env.JWT_EXPIRATION_MS as string, 10),
+  };
+  const newRefreshPayLoad = {
+    id: myRefreshToken.id,
+    exp:
+      Date.now() +
+      parseInt(process.env.JWT_REFRESH_EXPIRATION_MS as string, 10),
+  };
+  res.json({
+    token: jwt.sign(
+      JSON.stringify(newPayLoad),
+      process.env.JWT_SECRET as string
+    ),
+    refreshToken: jwt.sign(
+      JSON.stringify(newRefreshPayLoad),
+      process.env.JWT_REFRESH_SECRET as string
+    ),
+  });
 };
