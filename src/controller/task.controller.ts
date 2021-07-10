@@ -14,8 +14,7 @@ export const createTask = async (
       !description ||
       !price ||
       typeof title !== "string" ||
-      typeof description !== "string" ||
-      typeof price !== "number"
+      typeof description !== "string"
     ) {
       res.send("Improper Values");
       return;
